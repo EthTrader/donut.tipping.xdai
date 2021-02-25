@@ -17,25 +17,36 @@ contract Tipping {
         currency = IERC20(_currency);
     }
 
-    function receiveTransfer(address from, uint256 tokens, address token, bytes memory data) public returns (bool success) {
+    function receiveTransfer(address _from, uint256 _amount, address _token, bytes calldata _data) public returns (bool success) {
 
-        address recipientAddress;
-        bytes32 contentId;
+        bytes4 funcId =
+            _data[0] |
+            (bytes4(_data[1]) >> 8) |
+            (bytes4(_data[2]) >> 16) |
+            (bytes4(_data[3]) >> 24);
 
-        bytes32 metaDataOne;
-        bytes32 metaDataTwo;
+        if(funcId == bytes4(keccak256("tip(address,string)"))) {
+            require(_token == address(currency), ERROR_INVALID_TOKEN );
 
-        (recipientAddress, contentId) = abi.decode(data, (address, bytes32));
+            (address recipientAddress, bytes32 contentId) = abi.decode(_data[4:], (address, bytes32));
 
-        console.log("Tip recipient:", recipientAddress);
+            console.log("Tip recipient:", recipientAddress);
 
-        emit Tip(from, recipientAddress, tokens, contentId);
+            emit Tip(_from, recipientAddress, _amount, contentId);
 
-        //This contract will have received the tokens so they will be transferred out to the final destination from here
-        require( IERC20(token).transfer(recipientAddress, tokens) ) ;
+            require( currency.transfer(recipientAddress, _amount), ERROR_TOKEN_TRANSFER ) ;
 
-        return true;
+            return true;
+        } else {
+            return false;
+        }
 
+    }
+
+    function tip(address _to, uint _amount, bytes32 _contentId) external {
+        require( currency.transferFrom(msg.sender, _to, _amount), ERROR_TOKEN_TRANSFER );
+
+        emit Tip(msg.sender, _to, _amount, _contentId);
     }
 
 }

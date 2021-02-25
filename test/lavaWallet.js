@@ -6,6 +6,7 @@ const {
   toUtf8Bytes,
   joinSignature,
   formatBytes32String,
+  Interface,
   SigningKey
 } = require("ethers").utils;
 
@@ -78,7 +79,10 @@ describe("LavaWallet", function() {
     await token.connect(account1).approve(lavaWallet.address, ethers.constants.MaxUint256)
     const amount = parseEther("100")
 
-    const methodName = defaultAbiCoder.encode(["address","string"],[account2.address, formatBytes32String("kf251b")])
+    var iface = new Interface(["function tip(address,string)"])
+    // var funcId = iface.getSighash('tip');
+    // console.log("funcId",funcId)
+    const methodName = iface.encodeFunctionData('tip', [account2.address, formatBytes32String("kf251b")])
 
     const digest = hexlify(
       await lavaWallet.getLavaTypedDataHash(
