@@ -1,3 +1,4 @@
+//SPDX-License-Identifier: MIT
 pragma solidity ^0.7.0;
 
 import "hardhat/console.sol";
@@ -12,26 +13,23 @@ contract Tipping {
     event Tip(address from, address to, uint amount, bytes32 contentId);
 
     constructor(address _currency) {
-        console.log("Deploying a Tipping with currency:", _currency);
+        console.log("Deploying Tipping with currency:", _currency);
         currency = IERC20(_currency);
     }
 
     function receiveTransfer(address from, uint256 tokens, address token, bytes memory data) public returns (bool success) {
 
         address recipientAddress;
+        bytes32 contentId;
 
         bytes32 metaDataOne;
         bytes32 metaDataTwo;
 
-           assembly {
-             recipientAddress :=   mload(add(data, 32))
+        (recipientAddress, contentId) = abi.decode(data, (address, bytes32));
 
-             metaDataOne := mload(add(data, 64))
-             metaDataTwo := mload(add(data, 96))
-           }
+         console.log("Tip recipient:", recipientAddress);
 
-
-         emit Tip(from, recipientAddress, tokens, bytes32("kf251b"));
+         emit Tip(from, recipientAddress, tokens, contentId);
 
          //This contract will have received the tokens so they will be transferred out to the final destination from here
          require( IERC20(token).transfer(recipientAddress, tokens) ) ;
