@@ -27,14 +27,14 @@ contract Tipping {
 
         (recipientAddress, contentId) = abi.decode(data, (address, bytes32));
 
-         console.log("Tip recipient:", recipientAddress);
+        console.log("Tip recipient:", recipientAddress);
 
-         emit Tip(from, recipientAddress, tokens, contentId);
+        emit Tip(from, recipientAddress, tokens, contentId);
 
-         //This contract will have received the tokens so they will be transferred out to the final destination from here
-         require( IERC20(token).transfer(recipientAddress, tokens) ) ;
+        //This contract will have received the tokens so they will be transferred out to the final destination from here
+        require( IERC20(token).transfer(recipientAddress, tokens) ) ;
 
-         return true;
+        return true;
 
     }
 
