@@ -21,8 +21,10 @@ module.exports = {
   networks: {
     hardhat: {
       forking: {
-        url: `https://eth-kovan.alchemyapi.io/v2/${ALCHEMY_API_KEY}`,
-        blockNumber: 23632675
+        url: `https://xdai-archive.blockscout.com`,
+        blockNumber: 14745590
+        // url: `https://eth-kovan.alchemyapi.io/v2/${ALCHEMY_API_KEY}`,
+        // blockNumber: 23632675
       }
     }
   },

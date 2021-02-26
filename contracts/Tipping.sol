@@ -1,21 +1,13 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.7.0;
 
-import "hardhat/console.sol";
-
 contract Tipping {
-    /* IERC20 public currency; */
 
     // Errors
     string private constant ERROR_TOKEN_TRANSFER = "TOKEN_TRANSFER_FAILED";
     string private constant ERROR_INVALID_TOKEN = "INVALID_TOKEN";
 
     event Tip(address indexed from, address indexed to, uint amount, address indexed token, bytes32 contentId);
-
-    /* constructor(address _currency) {
-        console.log("Deploying Tipping with currency:", _currency);
-        currency = IERC20(_currency);
-    } */
 
     function receiveTransfer(address _from, uint256 _amount, address _token, bytes calldata _data) public returns (bool success) {
 
@@ -26,11 +18,7 @@ contract Tipping {
             (bytes4(_data[3]) >> 24);
 
         if(funcId == bytes4(keccak256("tip(address,string)"))) {
-            /* require(_token == address(currency), ERROR_INVALID_TOKEN ); */
-
             (address recipientAddress, bytes32 contentId) = abi.decode(_data[4:], (address, bytes32));
-
-            console.log("Tip recipient:", recipientAddress);
 
             emit Tip(_from, recipientAddress, _amount, _token, contentId);
 
@@ -50,7 +38,6 @@ contract Tipping {
     }
 
 }
-
 
 abstract contract IERC20 {
     function totalSupply() public virtual view returns (uint);

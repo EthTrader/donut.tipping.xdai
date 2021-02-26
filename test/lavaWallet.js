@@ -10,9 +10,22 @@ const {
   SigningKey
 } = require("ethers").utils;
 
+const networkData = {
+  kovan: {
+    chainId: 42,
+    lavaWalletAddress: "0xcaEE7DaA8C6f56Fa8DCdC5b77b2178DBc374e25C",
+    tokenAddress: "0x7B3A2c7D65c357fA4CCF4BA93d3C0781b843a4f3",
+  },
+  xdai: {
+    chainId: 100,
+    lavaWalletAddress: "0x99bbB6034D394C7b4A96827Dc35eA573DE4D8883",
+    tokenAddress: "0x524B969793a64a602342d89BC2789D43a016B13A",
+    tippingAddress: "0xF40e98033eb722CC6B4a64F7b37737d56eCB17EF"
+  }
+}
+const NETWORK = networkData.xdai
+
 const carlslarsonAddress = "0x95D9bED31423eb7d5B68511E0352Eae39a3CDD20"
-const lavaWalletKovanAddress = "0xcaEE7DaA8C6f56Fa8DCdC5b77b2178DBc374e25C"
-const tokenKovanAddress = "0x7B3A2c7D65c357fA4CCF4BA93d3C0781b843a4f3"
 let carlslarsonSigner, account1, account2, token, tipping
 const account1PrivateKey = "0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
 
@@ -23,12 +36,15 @@ beforeEach(async function() {
     params: [carlslarsonAddress]
   })
   carlslarsonSigner = await ethers.provider.getSigner(carlslarsonAddress)
-  token = await ethers.getContractAt("IERC20", tokenKovanAddress);
+
+  tipping = await ethers.getContractAt("Tipping", NETWORK.tippingAddress);
+  lavaWallet = await ethers.getContractAt("LavaWallet", NETWORK.lavaWalletAddress);
+  token = await ethers.getContractAt("IERC20", NETWORK.tokenAddress);
   await token.connect(carlslarsonSigner).transfer(account1.address, parseEther("1000"))
 
-  const Tipping = await ethers.getContractFactory("Tipping")
-  // tipping = await Tipping.deploy(tokenKovanAddress);
-  tipping = await Tipping.deploy();
+  // const Tipping = await ethers.getContractFactory("Tipping")
+  // tipping = await Tipping.deploy(NETWORK.tokenAddress);
+  // tipping = await Tipping.deploy();
 })
 
 describe("LavaWallet", function() {
@@ -36,7 +52,6 @@ describe("LavaWallet", function() {
     const account1BalanceStart = await token.balanceOf(account1.address)
     const account2BalanceStart = await token.balanceOf(account2.address)
 
-    const lavaWallet = await ethers.getContractAt("LavaWallet", lavaWalletKovanAddress);
     await token.connect(account1).approve(lavaWallet.address, ethers.constants.MaxUint256)
     const amount = parseEther("100")
 
@@ -47,7 +62,7 @@ describe("LavaWallet", function() {
         account1.address,                           //from
         account2.address,                           //to
         lavaWallet.address,                         //wallet (should be LavaWallet contract)
-        tokenKovanAddress,                          //token
+        NETWORK.tokenAddress,                          //token
         amount,                                     //tokens
         0,                                          //relayerRewardTokens
         0,                                          //expires
@@ -60,7 +75,7 @@ describe("LavaWallet", function() {
       ethers.constants.AddressZero,               //relayAuthority
       account1.address,                           //from
       account2.address,                           //to
-      tokenKovanAddress,                          //token
+      NETWORK.tokenAddress,                          //token
       amount,                                     //tokens
       0,                                          //relayerRewardTokens
       0,                                          //expires
@@ -72,11 +87,10 @@ describe("LavaWallet", function() {
   });
 
   it("transferAndCallWithSignature", async function() {
-    const token = await ethers.getContractAt("IERC20", tokenKovanAddress);
+    const token = await ethers.getContractAt("IERC20", NETWORK.tokenAddress);
     const account1BalanceStart = await token.balanceOf(account1.address)
     const account2BalanceStart = await token.balanceOf(account2.address)
 
-    const lavaWallet = await ethers.getContractAt("LavaWallet", lavaWalletKovanAddress);
     await token.connect(account1).approve(lavaWallet.address, ethers.constants.MaxUint256)
     const amount = parseEther("100")
 
@@ -92,7 +106,7 @@ describe("LavaWallet", function() {
         account1.address,                           //from
         tipping.address,                            //to
         lavaWallet.address,                         //wallet (should be LavaWallet contract)
-        tokenKovanAddress,                          //token
+        NETWORK.tokenAddress,                          //token
         amount,                                     //tokens
         0,                                          //relayerRewardTokens
         0,                                          //expires
@@ -105,7 +119,7 @@ describe("LavaWallet", function() {
       ethers.constants.AddressZero,               //relayAuthority
       account1.address,                           //from
       tipping.address,                            //to
-      tokenKovanAddress,                          //token
+      NETWORK.tokenAddress,                          //token
       amount,                                     //tokens
       0,                                          //relayerRewardTokens
       0,                                          //expires
