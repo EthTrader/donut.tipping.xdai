@@ -27,7 +27,8 @@ beforeEach(async function() {
   await token.connect(carlslarsonSigner).transfer(account1.address, parseEther("1000"))
 
   const Tipping = await ethers.getContractFactory("Tipping")
-  tipping = await Tipping.deploy(tokenKovanAddress);
+  // tipping = await Tipping.deploy(tokenKovanAddress);
+  tipping = await Tipping.deploy();
 })
 
 describe("LavaWallet", function() {
